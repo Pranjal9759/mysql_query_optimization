@@ -1,0 +1,14 @@
+{
+  "name": "sql-query-optimization",
+  "version": "1.0.0",
+  "description": "SQL Query Optimization with 5 Million Records",
+  "main": "insertRecord.js",
+  "scripts": {
+    "insert": "node insertRecord.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mysql2": "^2.3.3",
+    "dotenv": "^16.0.3"
+  }
+} 

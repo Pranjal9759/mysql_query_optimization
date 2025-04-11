@@ -1,0 +1,47 @@
+Connected to the database for basic query tests.
+Test started at: 2025-04-11T05:32:52.637Z
+Index status: WITH indexes
+
+=== 1. Basic equality query (simple WHERE clause) ===
+Query: SELECT user_id, token_type, client_id FROM oauth_tokens WHERE user_id = ?
+Parameters: [10]
+Results: 28087 rows returned
+Execution time: 21.28 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | ref | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_covering | 4 | const | 54914 | 100 | Using index
+
+=== 2. Query with IN clause (multiple specific values) ===
+Query: SELECT user_id, token_type, client_id FROM oauth_tokens WHERE user_id IN (?, ?, ?, ?, ?)
+Parameters: [10,20,30,40,50]
+Results: 139158 rows returned
+Execution time: 54.81 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | range | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_covering | 4 |  | 273466 | 100 | Using where; Using index
+
+=== 3. Query with BETWEEN (range of values) ===
+Query: SELECT user_id, token_type, client_id FROM oauth_tokens WHERE user_id BETWEEN ? AND ?
+Parameters: [5,15]
+Results: 306499 rows returned
+Execution time: 104.99 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | range | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_covering | 4 |  | 642432 | 100 | Using where; Using index
+
+=== 4. Query with multiple conditions (AND) ===
+Query: SELECT user_id, token_type, client_id FROM oauth_tokens WHERE user_id = ? AND token_type = ?
+Parameters: [10,"Bearer"]
+Results: 13976 rows returned
+Execution time: 5.43 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | ref | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_covering | 86 | const,const | 26656 | 100 | Using index
+
+All basic query tests completed.
+Test ended at: 2025-04-11T05:32:52.839Z
+Database connection closed.

@@ -1,0 +1,47 @@
+Connected to the database for basic query tests.
+Test started at: 2025-04-11T05:32:26.662Z
+Index status: WITHOUT indexes
+
+=== 1. Basic equality query (simple WHERE clause) ===
+Query: SELECT * FROM oauth_tokens WHERE user_id = ?
+Parameters: [10]
+Results: 28087 rows returned
+Execution time: 2191.41 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | ref | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_issued | 4 | const | 54324 | 100 | 
+
+=== 2. Query with IN clause (multiple specific values) ===
+Query: SELECT * FROM oauth_tokens WHERE user_id IN (?, ?, ?, ?, ?)
+Parameters: [10,20,30,40,50]
+Results: 139158 rows returned
+Execution time: 10048.93 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | range | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_id_main | 4 |  | 272250 | 100 | Using index condition; Using MRR
+
+=== 3. Query with BETWEEN (range of values) ===
+Query: SELECT * FROM oauth_tokens WHERE user_id BETWEEN ? AND ?
+Parameters: [5,15]
+Results: 306499 rows returned
+Execution time: 2655.59 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | ALL | idx_user_id_main,idx_user_covering,idx_user_issued |  |  |  | 4941114 | 12.70158863067627 | Using where
+
+=== 4. Query with multiple conditions (AND) ===
+Query: SELECT * FROM oauth_tokens WHERE user_id = ? AND token_type = ?
+Parameters: [10,"Bearer"]
+Results: 13976 rows returned
+Execution time: 1423.88 ms
+Execution Plan (EXPLAIN):
+id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | filtered | Extra
+---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------
+1 | SIMPLE | oauth_tokens |  | ref | idx_user_id_main,idx_user_covering,idx_user_issued | idx_user_covering | 86 | const,const | 26656 | 100 | 
+
+All basic query tests completed.
+Test ended at: 2025-04-11T05:32:42.989Z
+Database connection closed.
